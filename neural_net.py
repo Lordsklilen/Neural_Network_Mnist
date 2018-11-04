@@ -8,7 +8,10 @@ from random import randrange
 from scipy import special
 import numpy as np
 import sys
+
 LAYERS_NUMBER = 300
+
+
 # =====================
 #     Network class
 # =====================
@@ -70,16 +73,18 @@ class Network:
         print('Network training with ' + str(batchsize) + ' examples Stochastic gradient descent method ')
         print('Until convergence (10 iterations without improvements)')
         print('-----')
-        maxbatch = int(max/batchsize)
-        iteration_batch = randrange(0, maxbatch - 1)
-        inputs = training[0][iteration_batch * batchsize:(iteration_batch + 1) * batchsize]
-        targets = np.zeros((batchsize, 10))
-        for i in range(batchsize):
-            targets[i, training[1][i]] = 1
+        maxbatch = int(max / batchsize)
+        Globaltargets = np.zeros((max, 10))
+        for i in range(max):
+            Globaltargets[i, training[1][i]] = 1
 
         while self.same < 10:
+            iteration_batch = randrange(0, maxbatch - 1)
+            inputs = training[0][iteration_batch * batchsize:(iteration_batch + 1) * batchsize]
+            targets = Globaltargets[iteration_batch * batchsize:(iteration_batch + 1) * batchsize]
             for input_vector, target_vector in zip(inputs, targets):
                 self.backpropagate(input_vector, target_vector)
+
             # Messages and backups
             self.iteration += 1.
             accu = self.accu(TESTING)
@@ -112,15 +117,13 @@ class Network:
         return outputs
 
     def backpropagate(self, input_vector, target):
-        """Reduce error for one input vector:
-        Calculating the partial derivatives for each coeff then subtracts"""
         c = 1. / (self.iteration + 10)  # Learning coefficient
+        #  c = 0.1
         hidden_outputs, outputs = self.feed_forward(input_vector)
 
-        # Calculation of partial derivatives for the output layer and subtraction
+        # Wyliczanie częściowych pochodnych i odejmowanie dla warstwy wyników
         output_deltas = outputs * (1 - outputs) * (outputs - target)
-
-        # Calculation of partial derivatives for the hidden layer and subtraction
+        # Wyliczanie częściowych pochodnych i odejmowanie dla ukrytej warstwy
         hidden_deltas = hidden_outputs * (1 - hidden_outputs) * \
                         np.dot(np.delete(self.layers[-1], LAYERS_NUMBER, 1).T, output_deltas)
         self.layers[-1] -= c * np.outer(output_deltas, np.append(hidden_outputs, 1))
@@ -146,7 +149,7 @@ class Network:
         f.close()
 
     def accu(self, testing):
-        #wyliczanie ilości "zgadniętych"
+        # wyliczanie ilości "zgadniętych"
         res = np.zeros((10, 2))
         for k in range(len(testing[1])):
             if self.predict_one(testing[0][k]) == testing[1][k]:
@@ -185,8 +188,6 @@ class Network:
                    0, 0], [0, 0]], [0, 0]]
         self.printImg(benis, 0)
         print("prediction: " + str(self.predict_one(benis[0][0])))
-
-
 
     def manualtest(self):
         id = 0
@@ -229,8 +230,10 @@ print('Import duration ' + str(round((time.time() - START_TIME), 2)) + 's')
 print('----')
 
 neuralNetwork = Network(LAYERS_NUMBER)
-neuralNetwork.load("ntMIN_[96.89 97.99  7.  ]")
-# neuralNetwork.train_GD(600, TRAINING)
+#  neuralNetwork.load("ntMIN_[96.89 97.99  7.  ]")
+#  neuralNetwork.manualtest()
+#  neuralNetwork.train_GD(3000, TRAINING)
+neuralNetwork.train_SGD(3000, 60000, TRAINING)
 neuralNetwork.manualtest()
 
 np.set_printoptions(precision=2)

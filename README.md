@@ -21,7 +21,7 @@ Run by executing neural_net.py
 python neural_net.py
 ```
 ### Todos
- - finish SGD method
+ - ~~finish SGD method~~
  - Add more training methods(Momentum, ADAM)
 
 License
