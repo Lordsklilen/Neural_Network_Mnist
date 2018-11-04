@@ -67,7 +67,6 @@ class Network:
         print('10 Iterations without improvements.')
         print('Total duration: ' + str(round((time.time() - start_time), 2)) + 's')
 
-    #  not working yet
     def train_SGD(self, batchsize, max, training):
         start_time = time.time()
         print('Network training with ' + str(batchsize) + ' examples Stochastic gradient descent method ')
